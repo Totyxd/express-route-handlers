@@ -2,11 +2,9 @@
 
 - Uses REST architecture.
 
-- It's the SAME API than the one contained in the rep music-archive-API, but this one uses Express.JS for route handlers to avoid boilerplate code and to start practicing how real servers are coded. It also uses some helper functions that are meant to be used with specific endpoints.
+- It's the SAME API than the one contained in the rep music-archive-API, but this one uses Express.JS for route handlers to avoid boilerplate code and to start practicing how real servers are coded. It also uses some modularized functions that are meant to be used with specific endpoints.
 
-- The number of endpoints handled by this API is minor than the number handled by the previous version. This was done to focus on the most important ones.
-
-- It's a web API server but it doesn't use a real database.
+- It's a web API server but it doesn't use a real database. The folder "seeds" contains jsons that act as if they were databases, simulating db relationships.
 
 - Manages requests dynamically, and can perform CRUD.
 
@@ -18,9 +16,7 @@
 
 - Project assumes most inputs will be valid and not misintentioned.
 
-- Responds to all errors with the same general message.
-
-- Docs only contain most important headers.
+- Docs only contain most important headers and most important routes for this practice. Complete docs can be found at the usic-archive-API rep.
 
 ### Get a specific artist's details based on artistId
 

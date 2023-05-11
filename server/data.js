@@ -73,18 +73,6 @@ exports.deleteArtistByArtistId = (artistId) => {
   return artists[artistId];
 };
 
-exports.getAlbumsForLatestArtist = () => {
-  const artistsArr = Object.values(artists);
-  const latestArtist = artistsArr[artistsArr.length - 1];
-  const artistAlbums = Object.values(albums)
-    .filter(album => album.artistId == latestArtist.artistId);
-  return {
-    latest: {
-      albums: artistAlbums
-    },
-  };
-};
-
 exports.getAlbumsByArtistId = (artistId) => {
   return Object.values(albums)
     .filter(album => album.artistId == artistId);

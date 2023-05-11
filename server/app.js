@@ -1,104 +1,40 @@
-const {
-  getAllArtists,
-  getLatestArtist,
-  getArtistByArtistId,
-  addArtist,
-  editArtistByArtistId,
-  deleteArtistByArtistId,
-  getAlbumsForLatestArtist,
-  getAlbumsByArtistId,
-  getAlbumByAlbumId,
-  addAlbumByArtistId,
-  editAlbumByAlbumId,
-  deleteAlbumByAlbumId,
-  getFilteredAlbums,
-  getSongsByArtistId,
-  getSongsByAlbumId,
-  getSongBySongId,
-  addSongByAlbumId,
-  editSongBySongId,
-  deleteSongBySongId
-} = require('./data');
-
 const express = require('express');
+const artistsRouter = require("./routes/artists");
+const albumsRouter = require("./routes/albums");
+const songsRouter = require("./routes/songs");
+require("dotenv").config();
+
 const app = express();
 
+app.use((req, res, next) => {
+  console.log(req.method, req.url);
+  next();
+});
 app.use(express.json());
 
-app.get("/artists/:artistId", (req, res) => {
-  res.json(getArtistByArtistId(req.params.artistId));
+app.use("/artists", artistsRouter);
+
+app.use("/albums", albumsRouter);
+
+app.use("/songs", songsRouter);
+
+app.use((req, res, next) => {   //Up to this point, if a response hasn't been sent ...
+  const error = new Error("Could not find specified resource. Please check the url");
+  error.statusCode = 404;
+  next(error);
 });
 
-app.patch("/artists/:artistId", (req, res) => {
-  res.json(editArtistByArtistId(req.params.artistId, req.body));
-});
-
-app.delete("/artists/:artistId", (req, res) => {        //Try catch only set for example of how could wrong ids be handled, tohugh this practice does not consider that.
-  try {
-    deleteArtistByArtistId(req.params.artistId);
-    res.json({message: "Succesfully deleted"});
-  } catch (e) {
-    res.status(404).send("Could not find artist with id" + req.params.artistId);
+app.use((err, req, res, next) => { //Error handling middleware for all possible errors
+  const error = {
+    message: err.message || "There was a problem with the server",
+    statusCode: err.statusCode || 500
   };
-});
-
-app.get("/artists/:artistId/albums", (req, res) => {
-  res.json(getAlbumsByArtistId(req.params.artistId));
-});
-
-app.get("/albums/:albumId", (req, res) => {
-  res.json(getAlbumByAlbumId(req.params.albumId));
-});
-
-app.post("/artists/:artistId/albums", (req, res) => {
-  res.status(201).json(addAlbumByArtistId(req.params.artistId, req.body));
-});
-
-app.patch("/albums/:albumId", (req, res) => {
-  res.json(editAlbumByAlbumId(req.params.albumId, req.body));
-})
-
-app.delete("/albums/:albumId", (req, res) => {
-  deleteAlbumByAlbumId(req.params.albumId);
-  res.json({message: "Succesfully deleted"});
-});
-
-app.get("/albums", (req, res) => {
-  if (req.query.startsWith) {
-    res.json(getFilteredAlbums(req.query.startsWith))
-  } else {
-    res.status(400).send("Error. Make sure you are introducing query params.");
+  if (process.env.NODE_ENV !== "production") {
+    error.stackTrace = err.stack;
   };
+
+  res.status(err.statusCode || 500).json(error);
 });
 
-app.get("/artists/:artistId/songs", (req, res) => {
-  res.json(getSongsByArtistId(req.params.artistId));
-});
-
-app.get("/albums/:albumId/songs", (req, res) => {
-  res.json(getSongsByAlbumId(req.params.albumId));
-});
-
-app.get("/songs/:songId", (req, res) => {
-  res.json(getSongBySongId(req.params.songId));
-});
-
-app.post("/albums/:albumId/songs", (req, res) => {
-  res.status(201).json(addSongByAlbumId(req.params.albumId, req.body));
-});
-
-app.patch("/songs/:songId", (req, res) => {
-  res.json(editSongBySongId(req.params.songId, req.body));
-});
-
-app.delete("/songs/:songId", (req, res) => {
-  deleteSongBySongId(req.params.songId);
-  res.json({message: "Succesfully deleted"});
-});
-
-if (require.main === module) {
-  const port = 5000;
-  app.listen(port, () => console.log('Server is listening on port', port));
-} else {
-  module.exports = app;
-}
+const port = process.env.PORT || 5000;
+app.listen(port, () => console.log('Server is listening on port', port));
